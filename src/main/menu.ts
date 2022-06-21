@@ -5,6 +5,8 @@ import {
   BrowserWindow,
   MenuItemConstructorOptions,
 } from 'electron';
+import url from 'url';
+import { resolveHtmlPath } from './util';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -61,8 +63,6 @@ export default class MenuBuilder {
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
-        { label: 'Services', submenu: [] },
-        { type: 'separator' },
         {
           label: 'Hide ElectronReact',
           accelerator: 'Command+H',
@@ -82,6 +82,24 @@ export default class MenuBuilder {
             app.quit();
           },
         },
+      ],
+    };
+    const subMenuConfig: MenuItemConstructorOptions = {
+      label: 'Config',
+      submenu: [
+        {
+          label: 'Databrary',
+          click: () => {
+            const databraryUrl = url.format({
+              pathname: resolveHtmlPath('index.html'),
+              hash: '/databrary',
+            });
+
+            this.mainWindow.loadURL(databraryUrl);
+          },
+        },
+        { label: 'Box' },
+        { label: 'Sheet' },
       ],
     };
     const subMenuEdit: DarwinMenuItemConstructorOptions = {
@@ -189,7 +207,14 @@ export default class MenuBuilder {
         ? subMenuViewDev
         : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return [
+      subMenuAbout,
+      subMenuConfig,
+      subMenuEdit,
+      subMenuView,
+      subMenuWindow,
+      subMenuHelp,
+    ];
   }
 
   buildDefaultTemplate() {

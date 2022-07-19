@@ -10,14 +10,20 @@ import Asset from './Asset';
 type Props = {
   sessionId: string;
   assetList: AssetType[];
+  participantList: Participant[];
   eventKey: string;
 };
 
-const Session = ({ sessionId, assetList, eventKey }: Props) => {
+const Session = ({
+  sessionId,
+  assetList,
+  participantList,
+  eventKey,
+}: Props) => {
   const [checkAll, setCheckAll] = useState(false);
-  const participantList = useAppSelector((state: RootState) =>
-    getSessionParticipant(state, Number(sessionId))
-  );
+  // const participantList = useAppSelector((state: RootState) =>
+  //   getSessionParticipant(state, Number(sessionId))
+  // );
 
   const onCheckAllClick = (e: any) => {
     setCheckAll(e.target.checked);

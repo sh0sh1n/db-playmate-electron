@@ -11,6 +11,7 @@ export interface IAsset {
 export interface ICredentials {
   email: string;
   password: string;
+  superuser: boolean;
 }
 
 export interface IContainerRecord {
@@ -38,7 +39,7 @@ export interface IOwner {
   name: string;
 }
 
-export interface IVolume {
+export interface IVolumeInfo {
   access: any[];
   body: string;
   citation: any;

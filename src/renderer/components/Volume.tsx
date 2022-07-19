@@ -1,9 +1,7 @@
 import { CSSProperties, useEffect, useState } from 'react';
 import { Accordion, Spinner } from 'react-bootstrap';
-import { useAppDispatch } from '../hooks';
-import { useGetAssetsQuery, useGetVolumeInfoQuery } from '../playApi';
-import { setVolume } from '../slices';
-import { Asset } from '../types';
+import { IVolumeInfo, IRecord } from '../../interfaces';
+import { Asset, Participant } from '../types';
 import AccordionHeader from './AccordionHeader';
 import Session from './Session';
 // import "./Custom.css";
@@ -20,18 +18,19 @@ const Volume = ({
   style = undefined,
   className = undefined,
 }: Props) => {
-  const dispatch = useAppDispatch();
   const [sessionsMap, setSessionsMap] = useState<Record<string, Asset[]>>({});
-  const [sessionsSize, setSessionsSize] = useState(0);
   const [volumeName, setVolumeName] = useState<string | null>(null);
-  const { data: assetList, isFetching: isGetAssetsFetching } =
-    useGetAssetsQuery({
-      volumeId,
-    });
-  const { data: volumeInfo, isFetching: isVolumeInfoFetching } =
-    useGetVolumeInfoQuery({
-      volumeId,
-    });
+  const [assetList, setAssetList] = useState<Asset[]>([]);
+  const [participantList, setParticipantList] = useState<Participant[]>([]);
+  const [volumeInfo, setVolumeInfo] = useState<IVolumeInfo>({} as IVolumeInfo);
+  // const { data: assetList, isFetching: isGetAssetsFetching } =
+  //   useGetAssetsQuery({
+  //     volumeId,
+  //   });
+  // const { data: volumeInfo, isFetching: isVolumeInfoFetching } =
+  //   useGetVolumeInfoQuery({
+  //     volumeId,
+  //   });
 
   const getAssetsBySession = (assetList: Asset[]): Record<number, Asset[]> => {
     if (!assetList) return {};
@@ -50,31 +49,99 @@ const Volume = ({
     return result;
   };
 
+  const getParticipantFromRecords = (recordList: IRecord[]): Participant[] => {
+    return recordList
+      .filter((record) => record.category === 1)
+      .map((obj) => {
+        return {
+          recordId: obj.id,
+          id: obj.measures[1],
+          gender: obj.measures[5],
+        } as Participant;
+      });
+  };
+
+  const getParticipantByRecord = (
+    particpantList: Participant[],
+    recordId: number
+  ): Participant[] => {
+    return particpantList.filter(
+      (participant) => participant.recordId === recordId
+    );
+  };
+
+  const getSessionParticipant = (
+    sessionId: string,
+    participantList: Participant[]
+  ) => {
+    const containerRecordList =
+      volumeInfo.containers.find((container: any) => container.id === sessionId)
+        ?.records || [];
+
+    const result: Participant[] = [];
+
+    for (const containerRecord of containerRecordList) {
+      const participant = getParticipantByRecord(
+        participantList,
+        containerRecord.id
+      );
+
+      if (participant && participant.length > 0) {
+        result.push(...participant);
+      }
+    }
+
+    return result;
+  };
+
+  useEffect(() => {
+    if (!volumeId) return;
+    window.electron.databrary
+      .getVolumeInfo('ipc-example', volumeId)
+      .then((data) => setVolumeInfo(data))
+      .catch((error) => console.log('Error', error));
+  }, [volumeId]);
+
   useEffect(() => {
     setSessionsMap({ ...getAssetsBySession(assetList || []) });
   }, [assetList]);
 
   useEffect(() => {
-    setSessionsSize((Object.keys(sessionsMap) || []).length);
-  }, [sessionsMap]);
-
-  useEffect(() => {
-    if (!volumeInfo || !dispatch) return;
-    dispatch(setVolume(volumeInfo));
+    if (!volumeInfo) return;
     setVolumeName(volumeInfo.name);
-  }, [dispatch, volumeInfo]);
+
+    if (!volumeInfo.containers) return;
+
+    setAssetList(
+      volumeInfo.containers.flatMap((container) =>
+        container.assets.map((asset) => ({
+          assetId: asset.id,
+          assetName: asset.name,
+          sessionId: container.id,
+          sessionName: container.name,
+        }))
+      )
+    );
+
+    if (!volumeInfo.records) return;
+
+    setParticipantList(getParticipantFromRecords(volumeInfo.records));
+  }, [volumeInfo]);
 
   const getVolumeLabel = () => {
     return `Volume ${volumeId} ${volumeName ? `- ${volumeName}` : ``}`;
   };
 
-  if (isGetAssetsFetching || isVolumeInfoFetching)
-    return <Spinner animation="border" />;
+  // if (isGetAssetsFetching || isVolumeInfoFetching)
+  //   return <Spinner animation="border" />;
 
   return (
     <Accordion.Item eventKey={eventkey}>
       <Accordion.Header>
-        <AccordionHeader label={getVolumeLabel()} badgeValue={sessionsSize} />
+        <AccordionHeader
+          label={getVolumeLabel()}
+          badgeValue={(Object.keys(sessionsMap) || []).length}
+        />
       </Accordion.Header>
       <Accordion.Body>
         <Accordion defaultActiveKey="0">
@@ -85,6 +152,10 @@ const Volume = ({
                 key={sessionId}
                 sessionId={sessionId}
                 assetList={assetList}
+                participantList={getSessionParticipant(
+                  sessionId,
+                  participantList
+                )}
                 eventKey={`${idx}`}
               />
             );

@@ -1,22 +1,21 @@
 /* eslint-disable no-restricted-syntax */
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IRecord, IVolume } from './interfaces';
-import { RootState } from './store';
+import { IRecord, IVolumeInfo } from '../interfaces';
 import { Participant } from './types';
 
 export interface IPlayState {
-  volume: IVolume;
+  volume: IVolumeInfo;
 }
 
 const initialState: IPlayState = {
-  volume: {} as IVolume,
+  volume: {} as IVolumeInfo,
 };
 
 export const playSlice = createSlice({
   name: 'play',
   initialState,
   reducers: {
-    setVolume: (state, action: PayloadAction<IVolume>) => {
+    setVolume: (state, action: PayloadAction<IVolumeInfo>) => {
       state.volume = action.payload;
     },
   },
@@ -44,22 +43,19 @@ const getParticipantByRecord = (
 };
 
 export const getParticipants = createSelector(
-  (state: RootState) => state.play.volume,
+  (state: any) => state.play.volume,
   (volume) => {
     return getParticipantFromRecords(volume.records);
   }
 );
 
 export const getSessionParticipant = createSelector(
-  [
-    (state: RootState) => state.play.volume,
-    (_, sessionId: number) => sessionId,
-  ],
+  [(state: any) => state.play.volume, (_, sessionId: number) => sessionId],
   (volume, sessionId) => {
     const participantList = getParticipantFromRecords(volume.records);
 
     const containerRecordList =
-      volume.containers.find((container) => container.id === sessionId)
+      volume.containers.find((container: any) => container.id === sessionId)
         ?.records || [];
 
     const result: Participant[] = [];

@@ -1,11 +1,15 @@
+import { useEffect, useState } from 'react';
 import { Accordion, Spinner } from 'react-bootstrap';
-import { useGetVolumesQuery } from '../playApi';
 import Volume from './Volume';
 
 const Dashboard = () => {
-  const { data: volumeList, isFetching } = useGetVolumesQuery(null);
+  const [volumeList, setVolumeList] = useState(['899']);
 
-  if (isFetching) return <Spinner animation="border" />;
+  // useEffect(() => {
+  //   window.electron.databrary.login('ipc-example');
+  // }, []);
+
+  // if (isFetching) return <Spinner animation="border" />;
 
   return (
     <Accordion defaultActiveKey="0">

@@ -3,7 +3,7 @@ export type Asset = {
   assetName: string;
   sessionId: number;
   sessionName: string;
-  volumeId: string;
+  volumeId?: string;
 };
 
 export type Participant = {

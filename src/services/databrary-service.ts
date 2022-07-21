@@ -1,14 +1,15 @@
 import axios from 'axios';
+import { parse as parseSetCookie } from 'set-cookie-parser';
 import { session } from 'electron';
 import volumeData from './volume899.json';
+import envVariables from '../../env.json';
 
-const BASE_API_URL = 'https://nyu.databrary.org/api';
-const BASE_URL = 'https://nyu.databrary.org/';
+const { DATABRARY_API_URL, DATABRARY_EMAIL, DATABRARY_PASSWORD } = envVariables;
 let csverf: string;
 let cookie: string;
 // eslint-disable-next-line prefer-const
 let axiosInstance = axios.create({
-  baseURL: BASE_API_URL,
+  baseURL: DATABRARY_API_URL,
   withCredentials: true,
   headers: {
     Cache: 'no-cache',
@@ -17,7 +18,11 @@ let axiosInstance = axios.create({
 
 // axiosInstance.defaults.xsrfHeaderName = 'x-csverf';
 
-const login = async (email: string, password: string, superuser = false) => {
+const login = async (
+  email: string = DATABRARY_EMAIL,
+  password: string = DATABRARY_PASSWORD,
+  superuser = false
+) => {
   const response = await axiosInstance.post('/user/login', {
     email,
     password,
@@ -25,12 +30,11 @@ const login = async (email: string, password: string, superuser = false) => {
   });
 
   // csverf = response.data.csverf;
-  console.log('Response headers', response.headers);
-  // eslint-disable-next-line prefer-destructuring
-  cookie = (response.headers['set-cookie'] || [])[0].split('; ')[0];
-  session.defaultSession.cookies.set(cookie);
-
-  // console.log('Axios instance', axiosInstance);
+  const cookies = parseSetCookie(response);
+  cookies.forEach((c: Cookies) => {
+    session.defaultSession.cookies.set({ ...c, url: DATABRARY_API_URL });
+  });
+  session.defaultSession.cookies.get({}).then(console.log).catch(console.log);
 
   axiosInstance.interceptors.request.use((config) => {
     if (config && config.headers) {

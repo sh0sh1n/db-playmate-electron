@@ -14,12 +14,14 @@ import { createAuthWindow } from './auth';
 import { createAppWindow } from './app';
 
 const showWindow = async () => {
-  try {
-    await refreshTokens();
-    createAppWindow();
-  } catch (error) {
-    createAuthWindow();
-  }
+  createAppWindow();
+  // disable until we can get databrary integration working
+  // try {
+  //   await refreshTokens();
+  //   createAppWindow();
+  // } catch (error) {
+  //   createAuthWindow();
+  // }
 };
 
 /**

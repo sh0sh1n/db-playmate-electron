@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Accordion, Button, Form, ListGroup } from 'react-bootstrap';
+import { CloudDownload } from 'react-bootstrap-icons';
 import { useAppSelector } from '../hooks';
 import { getSessionParticipant } from '../slices';
 import { RootState } from '../store';
@@ -60,7 +61,9 @@ const Session = ({
               className="mx-2 me-auto"
               aria-label="option 1"
             />
-            <Button className="bi bi-cloud-download" disabled={!checkAll} />
+            <Button>
+              <CloudDownload />
+            </Button>
           </ListGroup.Item>
           {(assetList || []).map((asset, idx) => (
             <Asset key={idx} asset={asset} checked={checkAll} />

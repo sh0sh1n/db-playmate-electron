@@ -12,12 +12,6 @@ declare global {
         ): (() => void) | undefined;
         once(channel: string, func: (...args: unknown[]) => void): void;
       };
-      databrary: {
-        getVolumeInfo(
-          channel: Channels,
-          volumeId: string
-        ): Promise<IVolumeInfo>;
-      };
     };
   }
 }

@@ -13,7 +13,7 @@ const Asset = ({ asset, checked = false }: Props) => {
         disabled
         checked={checked}
         className="mx-2"
-        aria-label="option 1"
+        aria-label="Select asset for download"
       />
       {asset.assetName}
     </ListGroup.Item>

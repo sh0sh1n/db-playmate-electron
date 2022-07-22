@@ -4,18 +4,13 @@ import Volume from './Volume';
 
 const Dashboard = () => {
   const [volumeList, setVolumeList] = useState(['899']);
-
-  // useEffect(() => {
-  //   window.electron.databrary.login('ipc-example');
-  // }, []);
-
-  // if (isFetching) return <Spinner animation="border" />;
-
+  const vols = (volumeList || []).map( (volumeId) => {
+    const v = {"id": volumeId};
+    return v;
+  });
   return (
     <Accordion defaultActiveKey="0">
-      {(volumeList || []).map((volumeId, idx) => (
-        <Volume key={volumeId} volumeId={volumeId} eventkey={`${idx}`} />
-      ))}
+      {vols.map( (v) => <Volume key={v.id} volume={v} />)}
     </Accordion>
   );
 };

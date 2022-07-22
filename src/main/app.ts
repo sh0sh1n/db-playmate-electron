@@ -8,11 +8,12 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import fetch from 'cross-fetch';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { login } from '../services/databrary-service';
+import { login, getVolumeInfo } from '../services/databrary-service';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -44,7 +45,7 @@ if (isDebug) {
   require('electron-debug')();
 }
 
-const installExtensions = async () => {
+const installDevExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS'];
@@ -59,7 +60,7 @@ const installExtensions = async () => {
 
 export const createAppWindow = async () => {
   if (isDebug) {
-    await installExtensions();
+    await installDevExtensions();
   }
 
   const RESOURCES_PATH = app.isPackaged
@@ -70,17 +71,20 @@ export const createAppWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
-  // try {
-  //   await login('DATABRARY_EMAIL', 'DATABRARY_PASSWORD');
-  //   console.log('Databrary logged in');
-  // } catch (error) {
-  //   console.log('Error logging to Databrary', error);
-  // }
+  try {
+    await login();
+    fetch('https://databrary.org/api/volume/760', { credentials: 'include' })
+      .then(console.log)
+      .catch(console.log);
+  } catch (error) {
+    console.log('Error logging to Databrary', error);
+  }
 
   appWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    center: true,
+    width: 1200,
+    height: 800,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       webSecurity: false,

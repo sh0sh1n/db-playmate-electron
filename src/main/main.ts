@@ -9,17 +9,10 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import { app } from 'electron';
-import { refreshTokens } from '../services/box-service';
-import { createAuthWindow } from './auth';
 import { createAppWindow } from './app';
 
 const showWindow = async () => {
-  try {
-    await refreshTokens();
-    createAppWindow();
-  } catch (error) {
-    createAuthWindow();
-  }
+  createAppWindow();
 };
 
 /**

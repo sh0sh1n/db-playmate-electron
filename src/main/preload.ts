@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { getVolumeInfo } from 'services/databrary-service';
 
 export type Channels = 'ipc-example';
 contextBridge.exposeInMainWorld('electron', {
@@ -16,11 +15,6 @@ contextBridge.exposeInMainWorld('electron', {
     },
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
-    },
-  },
-  databrary: {
-    async getVolumeInfo(channel: Channels, volumeId: string) {
-      return getVolumeInfo(volumeId);
     },
   },
 });

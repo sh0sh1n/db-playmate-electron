@@ -10,9 +10,13 @@ import Asset from './Asset';
 type Props = {
   sessionId: string;
   assetList: AssetType[];
-  participantList: Participant[];
+  participantList?: Participant[];
   eventKey: string;
 };
+
+function downloadAssets(e: Event) {
+  alert("COMING SOON!");
+}
 
 const Session = ({
   sessionId,
@@ -21,10 +25,6 @@ const Session = ({
   eventKey,
 }: Props) => {
   const [checkAll, setCheckAll] = useState(false);
-  // const participantList = useAppSelector((state: RootState) =>
-  //   getSessionParticipant(state, Number(sessionId))
-  // );
-
   const onCheckAllClick = (e: any) => {
     setCheckAll(e.target.checked);
   };
@@ -60,7 +60,9 @@ const Session = ({
               className="mx-2 me-auto"
               aria-label="option 1"
             />
-            <Button className="bi bi-cloud-download" disabled={!checkAll} />
+            <Button className="btn" disabled={!checkAll}>
+              <i className="bi bi-cloud-download" />
+            </Button>
           </ListGroup.Item>
           {(assetList || []).map((asset, idx) => (
             <Asset key={idx} asset={asset} checked={checkAll} />

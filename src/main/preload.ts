@@ -24,3 +24,7 @@ contextBridge.exposeInMainWorld('electron', {
     },
   },
 });
+
+contextBridge.exposeInMainWorld('svc-box', {
+  ls: (folderId: string) => ipcRenderer.invoke('box-ls', folderId),
+});

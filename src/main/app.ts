@@ -13,6 +13,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { login } from '../services/databrary-service';
+import { ls } from '../services/box-service';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -91,6 +92,9 @@ export const createAppWindow = async () => {
   });
 
   appWindow.loadURL(resolveHtmlPath('index.html'));
+  appWindow.on('box-ls', (folderId) => {
+    return ls(folderId);
+  });
 
   appWindow.on('ready-to-show', () => {
     if (!appWindow) {
@@ -101,6 +105,9 @@ export const createAppWindow = async () => {
     } else {
       appWindow.show();
     }
+
+    // test: list contents of box root dir
+    ls('0').then(console.log).catch(console.log);
   });
 
   appWindow.on('closed', () => {

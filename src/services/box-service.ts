@@ -33,6 +33,11 @@ const getAuthenticationURL = () => {
   return `${baseUrl}/authorize?response_type=code&client_id=${BOX_CLIENT_ID}&redirect_uri=${BOX_REDIRECT_URI}`;
 };
 
+const client = axios.create({
+  baseURL: 'https://api.box.com/2.0',
+  withCredentials: true,
+});
+
 const refreshTokens = async () => {
   const refreshToken = await keytar.getPassword(keytarService, keytarAccount);
 
@@ -90,6 +95,23 @@ const loadTokens = async (callbackURL: string) => {
   }
 };
 
+const ls = async (uri: string) => {
+  if (!accessToken) {
+    await refreshTokens();
+  }
+  try {
+    const response = await client.get(`folders/${uri}/items`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    await logout();
+    throw error;
+  }
+};
+
 export {
   getAccessToken,
   getAuthenticationURL,
@@ -97,4 +119,5 @@ export {
   loadTokens,
   logout,
   refreshTokens,
+  ls,
 };

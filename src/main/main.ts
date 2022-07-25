@@ -13,6 +13,13 @@ import { createAppWindow } from './app';
 
 const showWindow = async () => {
   createAppWindow();
+  // disable until we can get databrary integration working
+  // try {
+  //   await refreshTokens();
+  //   createAppWindow();
+  // } catch (error) {
+  //   createAuthWindow();
+  // }
 };
 
 /**

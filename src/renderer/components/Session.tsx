@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Accordion, Button, Form, ListGroup } from 'react-bootstrap';
+import { CloudDownload } from 'react-bootstrap-icons';
 import { useAppSelector } from '../hooks';
 import { getSessionParticipant } from '../slices';
 import { RootState } from '../store';
@@ -15,7 +16,7 @@ type Props = {
 };
 
 function downloadAssets(e: Event) {
-  alert("COMING SOON!");
+  alert('COMING SOON!');
 }
 
 const Session = ({
@@ -60,8 +61,8 @@ const Session = ({
               className="mx-2 me-auto"
               aria-label="option 1"
             />
-            <Button className="btn" disabled={!checkAll}>
-              <i className="bi bi-cloud-download" />
+            <Button>
+              <CloudDownload />
             </Button>
           </ListGroup.Item>
           {(assetList || []).map((asset, idx) => (
